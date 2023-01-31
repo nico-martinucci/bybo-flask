@@ -124,7 +124,7 @@ def get_to_user_messages(id):
 
 # - get all messages from user
 @app.get("/api/messages/<user_id>/from")
-def get_to_user_messages(id):
+def get_from_user_messages(id):
     """
     Retrieve list of messages sent FROM identified user
     Returns [{id, text, timestamp, to_user_id, is_read}, ... ]

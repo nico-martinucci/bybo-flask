@@ -92,7 +92,7 @@ class Message(db.Model):
         nullable=False,
     )
 
-class Listings(db.Model):
+class Listing(db.Model):
     """All listings"""
 
     __tablename__ = 'listings'
@@ -191,5 +191,12 @@ class Booking(db.Model):
         backref="reservations"
     )
 
+def connect_db(app):
+    """Connect this database to provided Flask app.
 
+    You should call this in your Flask app.
+    """
 
+    app.app_context().push()
+    db.app = app
+    db.init_app(app)
