@@ -1,0 +1,45 @@
+Front-end: React w/ reactstrap
+Back-end: Flask, SQLAlchemy
+
+key features:
+- user authentication
+- submission form for posting a new listing (auth required)
+- search functionality for current listings
+- simple booking functionality (one sample week, seven days, each day can be booked by one user), globally reserved days, displayed on detail page, and displayed on user page (auth required)
+- if time: message service between users (auth required)
+- if time: map that updates when moved
+- if time: ratings and reviews
+- if time: "similar listings" section at bottom of listing detail
+- if time: standard set of criteria for a listing (type, space, shade/sun, grass, etc.)
+- if time: unread message card at top of user profile
+- if time: notification/unread message icon
+
+pages:
+- home page
+- page of all listings with search bar at top
+- listing detail page
+- user profile page, both for viewing self and other users; incl. current listings and current bookings
+- message page, with ordered list of messages
+
+routes:
+- get listings (all or optional filtering)
+- get listing detail
+- get user detail
+- get all messages for user
+- post login user
+- post signup user
+- post new user
+- post new listing
+- post new message
+- post new booking
+- delete existing booking
+
+database:
+- users
+- listings (fk: users)
+- messages (user-to-user, fks: users/users)
+- bookings (user-to-listings)
+
+open questions:
+- CSRF? maybe just not worry about it while we're working on it
+- if we both set-up AWS buckets, do we just use one of ours? do we switch?
