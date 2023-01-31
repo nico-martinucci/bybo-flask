@@ -143,5 +143,32 @@ class Listings(db.Model):
         nullable=False,
     )
 
+class Booking(db.Model):
+    """All Bookings"""
+
+    __tablename__ = 'bookings'
+
+    id = db.Column(
+        db.Integer,
+        primary_key=True,
+    )
+
+    day_of_week = db.Column(
+        db.String,
+        nullable=False,
+    )
+
+    user_id= db.Column(
+        db.Integer,
+        db.ForeignKey('users.id', ondelete='CASCADE'),
+        nullable=False,
+    )
+
+    listing_id = db.Column(
+        db.Integer,
+        db.ForeignKey('listings.id', ondelete='CASCADE'),
+        nullable=False,
+    )
+
 
 
