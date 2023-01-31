@@ -49,6 +49,11 @@ class User(db.Model):
         nullable=False,
     )
 
+    managed_listings = db.relationship(
+        "Listing",
+        backref="managed_by"
+    )
+
 class Message(db.Model):
     """All messages."""
 
@@ -143,6 +148,11 @@ class Listings(db.Model):
         nullable=False,
     )
 
+    price = db.Column(
+        db.Integer,
+        nullable=False,
+    )
+
 class Booking(db.Model):
     """All Bookings"""
 
@@ -153,8 +163,9 @@ class Booking(db.Model):
         primary_key=True,
     )
 
+    # stored as Sunday - Saturday --> 0 - 6 
     day_of_week = db.Column(
-        db.String,
+        db.Integer,
         nullable=False,
     )
 
@@ -168,6 +179,16 @@ class Booking(db.Model):
         db.Integer,
         db.ForeignKey('listings.id', ondelete='CASCADE'),
         nullable=False,
+    )
+
+    booked_by = db.relationship(
+        "User",
+        backref="reservations"
+    )
+
+    booked_listing = db.relationship(
+        "Listing",
+        backref="reservations"
     )
 
 
