@@ -1,5 +1,6 @@
 import os
 import jwt
+from jwt.exceptions import InvalidSignatureError
 from dotenv import load_dotenv
 from flask import (Flask, g, request, session, jsonify)
 from flask_cors import CORS
@@ -23,6 +24,26 @@ connect_db(app)
 db.create_all()
 
 # post_new_file("pictures/3_Backyard-Oasis-Ideas.jpg")
+
+
+def verify_jwt(jwt):
+    """
+    Takes in a JWT and authenticates it
+    Throws an error if no token or invalid token
+    """
+
+    try:
+        user_auth = jwt.decode(
+            jwt, 
+            os.environ['SECRET_KEY'], 
+            algorithms=["HS256"]
+        )
+    except InvalidSignatureError:
+        serialized = {
+            "error": "invalid token"
+        }
+
+        return jsonify(serialized)
 
 # ******************************************************************************
 # User routes
@@ -182,13 +203,23 @@ def add_new_listing():
     """
     Create a new listing
     Needs {name, description, location, size, photo, price, has_pool, is_fenced,
-            has_barbecue, user_id}
+            has_barbecue, user_id, token}
     Returns {id, name, description, location, size, photo, price, has_pool,
             is_fenced, has_barbecue, {host}, [bookings]}
         where host = {id, username}
         where bookings = [day, day, day, ... ]
-    Requires authenticated user TODO: implement this
+    Requires authenticated user
     """
+
+    if "token" in request.json.keys():
+        verify_jwt(request.json["token"])
+    else:
+        serialized = {
+            "error": "no token provided"
+        }
+
+        return jsonify(serialized)
+
 
     try:
         newListing = Listing(
@@ -233,15 +264,45 @@ def add_new_listing():
     return jsonify(serialized)
 
 # - post new booking
-@app.post("/api/listings/<id>/bookings")
-def create_new_booking(id):
+@app.post("/api/listings/<listing_id>/bookings")
+def create_new_booking(listing_id):
     """
     Creates a new booking
     Needs {user_id, [days]}
         where days = [day, day, day, ... ]
     Returns [day, day, day, ... ]
-    Requires authenticated user TODO: implement this
+    Requires authenticated user
     """
+
+    if "token" in request.json.keys():
+        verify_jwt(request.json["token"])
+    else:
+        serialized = {
+            "error": "no token provided"
+        }
+
+        return jsonify(serialized)
+
+    days = request.json["days"]
+
+    for day in days:
+        try:
+            newBooking = Booking(
+                day_of_week=day,
+                user_id=request.json["user_id"],
+                listing_id=listing_id,
+            )
+            db.session.add(newBooking)
+        except:
+            return # TODO: add better error handling
+
+    db.session.commit()
+
+    serialized = {
+        "booked": days
+    }
+
+    return jsonify(serialized)
 
 # - delete existing booking
 @app.delete("/api/listings/<listing_id>/bookings/<booking_id>")
