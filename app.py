@@ -221,7 +221,7 @@ def add_new_listing():
         return jsonify(serialized)
 
     #send picture to AWS and get back URL
-    post_new_file(request.files["photo"])
+    photo_url = post_new_file(request.files["photo"])
 
     try:
         newListing = Listing(
@@ -229,10 +229,10 @@ def add_new_listing():
             description=request.form["description"],
             location=request.form["location"],
             size=request.form["size"],
-            photo="test", #change this to photo URL
-            has_pool=True,
-            is_fenced=True,
-            has_barbecue=True,
+            photo=photo_url,
+            has_pool=bool(request.form["has_pool"]),
+            is_fenced=bool(request.form["is_fenced"]),
+            has_barbecue=bool(request.form["has_barbecue"]),
             user_id=request.form["user_id"],
             price=request.form["price"],
         )
