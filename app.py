@@ -41,7 +41,7 @@ def login_existing_user():
         )
     except:
         return # TODO: add in better error handling for bad login
-    
+
     serialized = jwt.encode(
         {"username": user.username, "id": user.id},
         "secret",
@@ -95,9 +95,9 @@ def get_user_detail(user_id):
     user = User.query.get_or_404(user_id)
     listings = [
         {
-            "id": listing.id, 
-            "name": listing.name, 
-            "description": listing.description, 
+            "id": listing.id,
+            "name": listing.name,
+            "description": listing.description,
             "location": listing.location
         }
         for listing in user.managed_listings
@@ -126,6 +126,23 @@ def get_all_listings():
     Returns [{id, name, description, location, photo, price}, ... ]
     """
 
+    listings = Listing.query.all()
+
+    serialized = [
+        {
+            "id": listing.id,
+            "name": listing.name,
+            "description":listing.description,
+            "location":listing.location,
+            "photo":listing.photo,
+            "price":listing.price
+        }
+        for listing in listings
+    ]
+
+    return jsonify(listings = serialized)
+
+
 # - get listing detail (incl. listing's current bookings)
 @app.get("/api/listings/<id>")
 def get_listing_detail(id):
@@ -138,6 +155,27 @@ def get_listing_detail(id):
         where bookings = [day, day, day, ... ]
     """
 
+    listing = Listing.query.get_or_404(id)
+
+    serialized = {
+        "name": listing.name,
+        "description": listing.description,
+        "location": listing.location,
+        "size": listing.size,
+        "photo": listing.photo,
+        "price": listing.price,
+        "has_pool": listing.has_pool,
+        "is_fenced": listing.is_fenced,
+        "has_barbecue": listing.has_barbecue,
+        "host": {
+            "id": listing.user_id,
+            "username": listing.managed_by.username
+        },
+        "bookings": []
+    }
+
+    return jsonify(listing = serialized)
+
 # - post new listing
 @app.post("/api/listings")
 def add_new_listing():
@@ -145,7 +183,7 @@ def add_new_listing():
     Create a new listing
     Needs {name, description, location, size, photo, price, has_pool, is_fenced,
             has_barbecue, user_id}
-    Returns {id, name, description, location, size, photo, price, has_pool, 
+    Returns {id, name, description, location, size, photo, price, has_pool,
             is_fenced, has_barbecue, {host}, [bookings]}
         where host = {id, username}
         where bookings = [day, day, day, ... ]
