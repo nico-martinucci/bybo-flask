@@ -1,9 +1,11 @@
 import os
+import jwt
 from dotenv import load_dotenv
 from flask import (Flask, g, request, session, jsonify)
 from flask_cors import CORS
 from files import post_new_file
 from models import (db, connect_db, User, Listing, Message, Booking)
+from sqlalchemy.exc import IntegrityError
 
 load_dotenv()
 
@@ -15,43 +17,69 @@ app.config['SQLALCHEMY_DATABASE_URI'] = (
     os.environ['DATABASE_URI'].replace("postgres://", "postgresql://"))
 app.config['SQLALCHEMY_ECHO'] = False
 app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False
+app.config['SECRET_KEY'] = os.environ['SECRET_KEY']
 
 connect_db(app)
 db.create_all()
 
-post_new_file("pictures/3_Backyard-Oasis-Ideas.jpg")
+# post_new_file("pictures/3_Backyard-Oasis-Ideas.jpg")
 
 # ******************************************************************************
 # User routes
 # - post login user
 @app.post("/api/users/authenticate")
 def login_existing_user():
-    """ 
+    """
     Logs in an existing user
-    Needs {username, password} 
+    Needs {username, password}
     Returns JWT (that includes username and id)
     """
+
+
 
 # - post signup user
 @app.post("/api/users/register")
 def signup_new_user():
-    """ 
+    """
     Registers a new user
-    Needs {email, firstName, lastName, username, password}  
+    Needs {email, firstName, lastName, username, password}
     Returns JWT (that includes username and id)
     """
+    try:
+        user = User.signup(
+            email = request.json["email"],
+            first_name = request.json["firstName"],
+            last_name = request.json["lastName"],
+            username = request.json["username"],
+            password = request.json["password"],
+        )
+        db.session.commit()
+
+    except IntegrityError:
+        return
+
+    serialized = jwt.encode(
+        {"username": user.username, "id": user.id},
+        "secret",
+        algorithm="HS256"
+    )
+
+    return jsonify(token=serialized)
+
+
+
 
 # - post logout user
 @app.post("/api/users/logout")
 def logout_user():
-    """ 
-    Logout current user 
+    """
+    Logout current user
     """
 
 # - get user detail (incl. user's current bookings)
 @app.get("/api/users/<id>")
 def get_user_detail(id):
-    """ 
+    """
     Retrieves detailed information about a user, including their current
     bookings and their listings
     Returns {username, email, firstName, lastName, bio, [listings], [bookings]}
@@ -64,19 +92,19 @@ def get_user_detail(id):
 # - get listings (all or optional filtering)
 @app.get("/api/listings")
 def get_all_listings():
-    """ 
+    """
     Retrieves list of all listings, optionally filtered by query parameter (for
     now just by name of listing - maybe more to come later???)
-    Returns [{id, name, description, location, photo, price}, ... ] 
+    Returns [{id, name, description, location, photo, price}, ... ]
     """
 
 # - get listing detail (incl. listing's current bookings)
 @app.get("/api/listings/<id>")
 def get_listing_detail(id):
-    """ 
-    Retrieves detailed information about a listing, including summary 
+    """
+    Retrieves detailed information about a listing, including summary
     information on host and current reservations
-    Returns {name, description, location, size, photo, price, has_pool, is_fenced, 
+    Returns {name, description, location, size, photo, price, has_pool, is_fenced,
             has_barbecue, {host}, [bookings]}
         where host = {id, username}
         where bookings = [day, day, day, ... ]
@@ -87,16 +115,16 @@ def get_listing_detail(id):
 def add_new_listing():
     """
     Create a new listing
-    Needs {name, description, location, size, photo, price, has_pool, is_fenced, 
+    Needs {name, description, location, size, photo, price, has_pool, is_fenced,
             has_barbecue, user_id}
-    Returns {name, description, location, size, photo, has_pool, is_fenced, 
+    Returns {name, description, location, size, photo, has_pool, is_fenced,
             has_barbecue, {host}, [bookings]}
     """
 
 # - post new booking
 @app.post("/api/listings/<id>/bookings")
 def create_new_booking(id):
-    """ 
+    """
     Creates a new booking
     Needs {user_id, [days]}
         where days = [day, day, day, ... ]
@@ -107,7 +135,7 @@ def create_new_booking(id):
 @app.delete("/api/listings/<listing_id>/bookings/<booking_id>")
 def delete_booking(listing_id, booking_id):
     """
-    Deletes an existing booking; 
+    Deletes an existing booking;
     Needs {username, JWT}
     Returns {deleted: booking_id}
     """
