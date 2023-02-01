@@ -26,7 +26,7 @@ db.create_all()
 # post_new_file("pictures/3_Backyard-Oasis-Ideas.jpg")
 
 
-def verify_jwt(jwt):
+def verify_jwt(token):
     """
     Takes in a JWT and authenticates it
     Throws an error if no token or invalid token
@@ -34,8 +34,8 @@ def verify_jwt(jwt):
 
     try:
         user_auth = jwt.decode(
-            jwt, 
-            os.environ['SECRET_KEY'], 
+            token,
+            os.environ['SECRET_KEY'],
             algorithms=["HS256"]
         )
     except InvalidSignatureError:
@@ -211,8 +211,8 @@ def add_new_listing():
     Requires authenticated user
     """
 
-    if "token" in request.json.keys():
-        verify_jwt(request.json["token"])
+    if "token" in request.form.keys():
+        verify_jwt(request.form["token"])
     else:
         serialized = {
             "error": "no token provided"
@@ -220,19 +220,21 @@ def add_new_listing():
 
         return jsonify(serialized)
 
+    #send picture to AWS and get back URL
+    post_new_file(request.files["photo"])
 
     try:
         newListing = Listing(
-            name=request.json["name"],
-            description=request.json["description"],
-            location=request.json["location"],
-            size=request.json["size"],
-            photo=request.json["photo"],
-            has_pool=request.json["has_pool"],
-            is_fenced=request.json["is_fenced"],
-            has_barbecue=request.json["has_barbecue"],
-            user_id=request.json["user_id"],
-            price=request.json["price"],
+            name=request.form["name"],
+            description=request.form["description"],
+            location=request.form["location"],
+            size=request.form["size"],
+            photo="test", #change this to photo URL
+            has_pool=True,
+            is_fenced=True,
+            has_barbecue=True,
+            user_id=request.form["user_id"],
+            price=request.form["price"],
         )
 
         db.session.add(newListing)
