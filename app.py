@@ -171,7 +171,7 @@ def get_listing_detail(id):
             "id": listing.user_id,
             "username": listing.managed_by.username
         },
-        "bookings": []
+        "bookings": [] # TODO: make this real!
     }
 
     return jsonify(listing = serialized)
@@ -187,6 +187,7 @@ def add_new_listing():
             is_fenced, has_barbecue, {host}, [bookings]}
         where host = {id, username}
         where bookings = [day, day, day, ... ]
+    Requires authenticated user TODO: implement this
     """
 
     try:
@@ -239,6 +240,7 @@ def create_new_booking(id):
     Needs {user_id, [days]}
         where days = [day, day, day, ... ]
     Returns [day, day, day, ... ]
+    Requires authenticated user TODO: implement this
     """
 
 # - delete existing booking
@@ -248,6 +250,7 @@ def delete_booking(listing_id, booking_id):
     Deletes an existing booking;
     Needs {username, JWT}
     Returns {deleted: booking_id}
+    Requires authenticated user TODO: implement this
     """
 
 # ******************************************************************************
@@ -258,6 +261,7 @@ def get_to_user_messages(id):
     """
     Retrieve list of messages sent TO identified user
     Returns [{id, text, timestamp, from_user_id, is_read}, ... ]
+    Requires authenticated user TODO: implement this
     """
 
 # - get all messages from user
@@ -266,6 +270,7 @@ def get_from_user_messages(id):
     """
     Retrieve list of messages sent FROM identified user
     Returns [{id, text, timestamp, to_user_id, is_read}, ... ]
+    Requires authenticated user TODO: implement this
     """
 
 # - post new message
@@ -275,6 +280,7 @@ def send_new_message():
     Creates a new message from one user to another
     Needs {text, from_user_id, to_user_id}
     Returns {id}
+    Requires authenticated user TODO: implement this
     """
 
 

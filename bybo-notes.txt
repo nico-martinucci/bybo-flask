@@ -11,8 +11,10 @@ key features:
 - if time: ratings and reviews
 - if time: "similar listings" section at bottom of listing detail
 - if time: standard set of criteria for a listing (type, space, shade/sun, grass, etc.)
+- if time: more filters than just searching by name (see above)
 - if time: unread message card at top of user profile
 - if time: notification/unread message icon
+- if time: host admin page, can see who's booked which days and cancel
 
 pages:
 - home page
@@ -22,15 +24,14 @@ pages:
 - message page, with ordered list of messages
 
 routes:
-- get listings (all or optional filtering)
-- get listing detail
-- get user detail
-- get all messages for user
-- post login user
-- post signup user
-- post new user
-- post new listing
-- post new message
+- get listings (all or optional filtering) X
+- get listing detail X
+- get user detail X
+- get all messages for user X
+- post login user X
+- post signup user X
+- post new listing X
+- post new message X
 - post new booking
 - delete existing booking
 
