@@ -144,6 +144,7 @@ class Listing(db.Model):
         primary_key=True,
     )
 
+    # TODO: give this a unique constraint
     name = db.Column(
         db.String,
         nullable=False

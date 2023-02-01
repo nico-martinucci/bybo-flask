@@ -34,7 +34,21 @@ def login_existing_user():
     Needs {username, password}
     Returns JWT (that includes username and id)
     """
+    try:
+        user = User.authenticate(
+            username = request.json["username"],
+            password = request.json["password"]
+        )
+    except:
+        return # TODO: add in better error handling for bad login
+    
+    serialized = jwt.encode(
+        {"username": user.username, "id": user.id},
+        "secret",
+        algorithm="HS256"
+    )
 
+    return jsonify(token=serialized)
 
 
 # - post signup user
@@ -46,7 +60,7 @@ def signup_new_user():
     Returns JWT (that includes username and id)
     """
     try:
-        user = User.signup(
+        newUser = User.signup(
             email = request.json["email"],
             first_name = request.json["firstName"],
             last_name = request.json["lastName"],
@@ -56,10 +70,10 @@ def signup_new_user():
         db.session.commit()
 
     except IntegrityError:
-        return
+        return # TODO: add in better error handling for bad signup
 
     serialized = jwt.encode(
-        {"username": user.username, "id": user.id},
+        {"username": newUser.username, "id": newUser.id},
         "secret",
         algorithm="HS256"
     )
@@ -67,18 +81,9 @@ def signup_new_user():
     return jsonify(token=serialized)
 
 
-
-
-# - post logout user
-@app.post("/api/users/logout")
-def logout_user():
-    """
-    Logout current user
-    """
-
 # - get user detail (incl. user's current bookings)
-@app.get("/api/users/<id>")
-def get_user_detail(id):
+@app.get("/api/users/<user_id>")
+def get_user_detail(user_id):
     """
     Retrieves detailed information about a user, including their current
     bookings and their listings
@@ -86,6 +91,29 @@ def get_user_detail(id):
         where listings = [{id, name, description, location, photo}, ... ]
         where bookings = [{id, name, description, location, photo}, ... ]
     """
+
+    user = User.query.get_or_404(user_id)
+    listings = [
+        {
+            "id": listing.id, 
+            "name": listing.name, 
+            "description": listing.description, 
+            "location": listing.location
+        }
+        for listing in user.managed_listings
+    ]
+
+    serialized = {
+        "username": user.username,
+        "email": user.email,
+        "first_name": user.first_name,
+        "last_name": user.last_name,
+        "bio": user.bio,
+        "listings": listings,
+        "bookings": [] # TODO: turn this into a real thing
+    }
+
+    return jsonify(user=serialized)
 
 # ******************************************************************************
 # Listing routes
@@ -117,9 +145,53 @@ def add_new_listing():
     Create a new listing
     Needs {name, description, location, size, photo, price, has_pool, is_fenced,
             has_barbecue, user_id}
-    Returns {name, description, location, size, photo, has_pool, is_fenced,
-            has_barbecue, {host}, [bookings]}
+    Returns {id, name, description, location, size, photo, price, has_pool, 
+            is_fenced, has_barbecue, {host}, [bookings]}
+        where host = {id, username}
+        where bookings = [day, day, day, ... ]
     """
+
+    try:
+        newListing = Listing(
+            name=request.json["name"],
+            description=request.json["description"],
+            location=request.json["location"],
+            size=request.json["size"],
+            photo=request.json["photo"],
+            has_pool=request.json["has_pool"],
+            is_fenced=request.json["is_fenced"],
+            has_barbecue=request.json["has_barbecue"],
+            user_id=request.json["user_id"],
+            price=request.json["price"],
+        )
+
+        db.session.add(newListing)
+    except:
+        return # TODO: better error handling here
+
+    db.session.commit()
+
+    host = User.query.get_or_404(newListing.user_id)
+
+    serialized = {
+        "id": newListing.id,
+        "name": newListing.name,
+        "description": newListing.description,
+        "location": newListing.location,
+        "size": newListing.size,
+        "photo": newListing.photo,
+        "has_pool": newListing.has_pool,
+        "is_fenced": newListing.is_fenced,
+        "has_barbecue": newListing.has_barbecue,
+        "price": newListing.price,
+        "host": {
+            "id": host.id,
+            "username": host.username
+        },
+        "bookings": [] # TODO: make this real!
+    }
+
+    return jsonify(serialized)
 
 # - post new booking
 @app.post("/api/listings/<id>/bookings")
