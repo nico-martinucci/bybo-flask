@@ -108,7 +108,7 @@ def get_user_detail(user_id):
     """
     Retrieves detailed information about a user, including their current
     bookings and their listings
-    Returns {username, email, firstName, lastName, bio, [listings], [bookings]}
+    Returns {id, username, email, firstName, lastName, bio, [listings], [bookings]}
         where listings = [{id, name, description, location, photo}, ... ]
         where bookings = [{id, name, description, location, photo}, ... ]
     """
@@ -125,6 +125,7 @@ def get_user_detail(user_id):
     ]
 
     serialized = {
+        "id": user.id,
         "username": user.username,
         "email": user.email,
         "first_name": user.first_name,
@@ -146,6 +147,8 @@ def get_all_listings():
     now just by name of listing - maybe more to come later???)
     Returns [{id, name, description, location, photo, price}, ... ]
     """
+
+    # TODO: add filtering capbility to this
 
     listings = Listing.query.all()
 
@@ -220,6 +223,8 @@ def add_new_listing():
 
         return jsonify(serialized)
 
+    print(request.files["photo"])
+
     #send picture to AWS and get back URL
     photo_url = post_new_file(request.files["photo"])
 
@@ -263,7 +268,7 @@ def add_new_listing():
         "bookings": [] # TODO: make this real!
     }
 
-    return jsonify(serialized)
+    return jsonify(listing=serialized)
 
 # - post new booking
 @app.post("/api/listings/<listing_id>/bookings")
