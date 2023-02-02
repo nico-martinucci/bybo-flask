@@ -12,4 +12,7 @@ def post_new_file(file):
 
     resp = s3.Bucket(bucket_name).put_object(Key=file_name, Body=file)
 
-    return f"https://{bucket_name}.s3.us-west-1.amazonaws.com/{file_name}"
+    if bucket_name == "bybo-rithm":
+        return f"https://{bucket_name}.s3.us-west-1.amazonaws.com/{file_name}"
+    else:
+        return f"https://s3.us-west-1.amazonaws.com/{bucket_name}/{file_name}"
