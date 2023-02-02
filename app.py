@@ -26,11 +26,13 @@ db.create_all()
 # post_new_file("pictures/3_Backyard-Oasis-Ideas.jpg")
 
 
-def verify_jwt(token):
+def verify_jwt(auth):
     """
     Takes in a JWT and authenticates it
     Throws an error if no token or invalid token
     """
+    
+    token = auth.split()[1]
 
     try:
         user_auth = jwt.decode(
@@ -214,18 +216,7 @@ def add_new_listing():
     Requires authenticated user
     """
 
-    # TODO: this returns "Bearer token" --> pull out just token
-    token = request.headers["Authorization"]
-    print(token)
-
-    # if "token" in request.form.keys():
-    #     verify_jwt(request.form["token"])
-    # else:
-    #     serialized = {
-    #         "error": "no token provided"
-    #     }
-
-    #     return jsonify(serialized)
+    verify_jwt(request.headers["Authorization"])
 
     print("request.files photo value:", request.files["photo"])
 
@@ -285,14 +276,7 @@ def create_new_booking(listing_id):
     Requires authenticated user
     """
 
-    if "token" in request.json.keys():
-        verify_jwt(request.json["token"])
-    else:
-        serialized = {
-            "error": "no token provided"
-        }
-
-        return jsonify(serialized)
+    verify_jwt(request.headers["Authorization"])
 
     days = request.json["days"]
 
