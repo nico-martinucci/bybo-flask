@@ -214,6 +214,10 @@ def add_new_listing():
     Requires authenticated user
     """
 
+    # TODO: this returns "Bearer token" --> pull out just token
+    token = request.headers["Authorization"]
+    print(token)
+
     # if "token" in request.form.keys():
     #     verify_jwt(request.form["token"])
     # else:
@@ -223,28 +227,28 @@ def add_new_listing():
 
     #     return jsonify(serialized)
 
-    print(request.files["photo"])
+    print("request.files photo value:", request.files["photo"])
 
     #send picture to AWS and get back URL
     photo_url = post_new_file(request.files["photo"])
 
-    try:
-        newListing = Listing(
-            name=request.form["name"],
-            description=request.form["description"],
-            location=request.form["location"],
-            size=request.form["size"],
-            photo=photo_url,
-            has_pool=bool(request.form["has_pool"]),
-            is_fenced=bool(request.form["is_fenced"]),
-            has_barbecue=bool(request.form["has_barbecue"]),
-            user_id=request.form["user_id"],
-            price=request.form["price"],
-        )
+    # try:
+    newListing = Listing(
+        name=request.form["name"],
+        description=request.form["description"],
+        location=request.form["location"],
+        size=request.form["size"],
+        photo=photo_url,
+        has_pool=bool(request.form["hasPool"]),
+        is_fenced=bool(request.form["isFenced"]),
+        has_barbecue=bool(request.form["hasBarbecue"]),
+        user_id=request.form["userId"],
+        price=request.form["price"],
+    )
 
-        db.session.add(newListing)
-    except:
-        return # TODO: better error handling here
+    db.session.add(newListing)
+    # except:
+    #     return # TODO: better error handling here
 
     db.session.commit()
 
