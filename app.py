@@ -31,7 +31,7 @@ def verify_jwt(auth):
     Takes in a JWT and authenticates it
     Throws an error if no token or invalid token
     """
-    
+
     token = auth.split()[1]
 
     try:
@@ -121,7 +121,9 @@ def get_user_detail(user_id):
             "id": listing.id,
             "name": listing.name,
             "description": listing.description,
-            "location": listing.location
+            "location": listing.location,
+            "photo": listing.photo,
+            "price": listing.price
         }
         for listing in user.managed_listings
     ]
