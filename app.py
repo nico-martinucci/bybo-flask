@@ -184,6 +184,10 @@ def get_listing_detail(id):
     """
 
     listing = Listing.query.get_or_404(id)
+    bookings = [
+        booking.day_of_week
+        for booking in listing.reservations
+    ]
 
     serialized = {
         "name": listing.name,
@@ -199,7 +203,7 @@ def get_listing_detail(id):
             "id": listing.user_id,
             "username": listing.managed_by.username
         },
-        "bookings": [] # TODO: make this real!
+        "bookings": bookings
     }
 
     return jsonify(listing = serialized)
@@ -225,23 +229,23 @@ def add_new_listing():
     #send picture to AWS and get back URL
     photo_url = post_new_file(request.files["photo"])
 
-    # try:
-    newListing = Listing(
-        name=request.form["name"],
-        description=request.form["description"],
-        location=request.form["location"],
-        size=request.form["size"],
-        photo=photo_url,
-        has_pool=bool(request.form["hasPool"]),
-        is_fenced=bool(request.form["isFenced"]),
-        has_barbecue=bool(request.form["hasBarbecue"]),
-        user_id=request.form["userId"],
-        price=request.form["price"],
-    )
+    try:
+        newListing = Listing(
+            name=request.form["name"],
+            description=request.form["description"],
+            location=request.form["location"],
+            size=request.form["size"],
+            photo=photo_url,
+            has_pool=bool(request.form["hasPool"]),
+            is_fenced=bool(request.form["isFenced"]),
+            has_barbecue=bool(request.form["hasBarbecue"]),
+            user_id=request.form["userId"],
+            price=request.form["price"],
+        )
 
-    db.session.add(newListing)
-    # except:
-    #     return # TODO: better error handling here
+        db.session.add(newListing)
+    except:
+        return # TODO: better error handling here
 
     db.session.commit()
 
@@ -262,7 +266,7 @@ def add_new_listing():
             "id": host.id,
             "username": host.username
         },
-        "bookings": [] # TODO: make this real!
+        "bookings": []
     }
 
     return jsonify(listing=serialized)
