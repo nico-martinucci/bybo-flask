@@ -214,14 +214,14 @@ def add_new_listing():
     Requires authenticated user
     """
 
-    if "token" in request.form.keys():
-        verify_jwt(request.form["token"])
-    else:
-        serialized = {
-            "error": "no token provided"
-        }
+    # if "token" in request.form.keys():
+    #     verify_jwt(request.form["token"])
+    # else:
+    #     serialized = {
+    #         "error": "no token provided"
+    #     }
 
-        return jsonify(serialized)
+    #     return jsonify(serialized)
 
     print(request.files["photo"])
 
