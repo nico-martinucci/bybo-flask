@@ -89,6 +89,7 @@ def signup_new_user():
             last_name = request.json["lastName"],
             username = request.json["username"],
             password = request.json["password"],
+            bio = request.json["bio"]
         )
         db.session.commit()
 
