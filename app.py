@@ -127,6 +127,18 @@ def get_user_detail(user_id):
         }
         for listing in user.managed_listings
     ]
+    bookings = [
+        {
+            "id": booking.booked_listing.id,
+            "name": booking.booked_listing.name,
+            "description":booking.booked_listing.description,
+            "location":booking.booked_listing.location,
+            "photo":booking.booked_listing.photo,
+            "price":booking.booked_listing.price,
+            "day": booking.day_of_week
+        }
+        for booking in Booking.query.filter(user_id == user_id)
+    ]
 
     serialized = {
         "id": user.id,
@@ -136,7 +148,7 @@ def get_user_detail(user_id):
         "last_name": user.last_name,
         "bio": user.bio,
         "listings": listings,
-        "bookings": [] # TODO: turn this into a real thing
+        "bookings": bookings
     }
 
     return jsonify(user=serialized)
