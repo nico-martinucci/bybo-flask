@@ -257,7 +257,7 @@ def add_new_listing():
 
         db.session.add(newListing)
     except:
-        return # TODO: better error handling here
+        return jsonify(error={"error": "invalid or missing data"})
 
     db.session.commit()
 
