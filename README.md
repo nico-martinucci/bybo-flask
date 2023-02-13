@@ -25,13 +25,16 @@ $ psql
 3. Add a .env file with:
 ```
 SECRET_KEY=(any secret key you want)
-DATABASE_URL=postgresql:///warbler
+DATABASE_URL=postgresql:///bybo
 ```
 4. Run the server:
 ```
 $ flask run -p 5001
 ```
 5. View at `localhost:5001`
+
+## Tech
+- Flask, SQLAlchemy, Bcrypt, AWS S3, pyjwt
 
 ## // TODO
 - Write better error handling
