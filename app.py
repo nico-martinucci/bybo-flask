@@ -165,7 +165,7 @@ def get_all_listings():
     Returns [{id, name, description, location, photo, price}, ... ]
     """
 
-    name = request.args["name"]
+    name = request.args.get("name", "")
     search_term = "%{}%".format(name)
 
     print(name, search_term)
