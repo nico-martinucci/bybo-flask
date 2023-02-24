@@ -165,9 +165,12 @@ def get_all_listings():
     Returns [{id, name, description, location, photo, price}, ... ]
     """
 
-    # TODO: add filtering capbility to this
+    name = request.args["name"]
+    search_term = "%{}%".format(name)
 
-    listings = Listing.query.all()
+    print(name, search_term)
+
+    listings = Listing.query.filter(Listing.name.like(search_term)).all()
 
     serialized = [
         {
