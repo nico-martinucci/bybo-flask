@@ -170,7 +170,7 @@ def get_all_listings():
 
     print(name, search_term)
 
-    listings = Listing.query.filter(Listing.name.like(search_term)).all()
+    listings = Listing.query.filter(Listing.name.ilike(search_term)).all()
 
     serialized = [
         {
