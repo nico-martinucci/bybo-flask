@@ -63,7 +63,9 @@ def login_existing_user():
             password = request.json["password"]
         )
     except:
-        return # TODO: add in better error handling for bad login
+        return jsonify(error={
+            "message": "Invalid username/password combination."
+        })
 
     serialized = jwt.encode(
         {"username": user.username, "id": user.id},
@@ -94,7 +96,9 @@ def signup_new_user():
         db.session.commit()
 
     except IntegrityError:
-        return # TODO: add in better error handling for bad signup
+        return jsonify(error={ 
+            "message": "Username and/or email already in use." 
+        })
 
     serialized = jwt.encode(
         {"username": newUser.username, "id": newUser.id},
