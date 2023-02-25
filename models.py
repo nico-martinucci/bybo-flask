@@ -94,7 +94,7 @@ class User(db.Model):
             if is_auth:
                 return user
 
-        return False
+        raise ValueError
 
 
 class Message(db.Model):
